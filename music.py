@@ -1,6 +1,8 @@
 import requests
 import sys
 
+NUMBER_OF_TRACKS = 20
+
 
 def get_artist_id(name):
 
@@ -9,10 +11,10 @@ def get_artist_id(name):
         response = requests.get(f"https://api.deezer.com/search", params={"q": name})
         response.raise_for_status()
         data = response.json()
-       
+
         if data["total"] == 0:
             return None
-        
+
         artist_id = data["data"][0]["artist"]["id"]
 
         return artist_id
@@ -24,17 +26,23 @@ def get_artist_id(name):
         sys.exit("Connection error.")
 
 
-def get_music_names(name):
+def get_music_names(
+    name,
+):  # returns a list of dictionaries containing the title and artist of the top 10 tracks for the given artist name
     try:
         artist_id = get_artist_id(name)
         if artist_id is None:
             return []
         response = requests.get(
-            f"https://api.deezer.com/artist/{artist_id}/top?limit=10"
+            f"https://api.deezer.com/artist/{artist_id}/top?limit={NUMBER_OF_TRACKS}"
         )
+
         response.raise_for_status()
         data = response.json()
-        music_names = [track["title"] for track in data["data"]]
+        music_names = [
+            {"title": track["title"], "artist": track["artist"]["name"]}
+            for track in data["data"]
+        ]
         return music_names
     except requests.HTTPError as e:
         sys.exit(f"HTTP error: {e}")
