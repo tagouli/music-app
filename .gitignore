@@ -219,3 +219,6 @@ __marimo__/
 
 # test files
 tests/
+#database
+music.db
+music.db-*
